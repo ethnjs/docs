@@ -4,6 +4,7 @@ import { docsContentRoute, docsImageRoute, docsRoute } from './shared';
 import { defineDocs } from 'fumadocs-mdx/macro';
 import { metaSchema, pageSchema } from 'fumadocs-core/source/schema';
 import { z } from 'zod';
+import { compareDatesDesc } from './changelog';
 
 const docs = defineDocs({
   dir: 'content/docs',
@@ -30,6 +31,23 @@ export const source = loader({
   baseUrl: docsRoute,
   source: docs.toFumadocsSource(),
   plugins: [lucideIconsPlugin()],
+  pageTree: {
+    transformers: [
+      {
+        // Order every project's changelog/ by `date`, newest first — a static meta.json would need editing each release.
+        folder(node, folderPath) {
+          if (!/(^|\/)changelog$/.test(folderPath)) return node;
+          const dateOf = (child: (typeof node.children)[number]) => {
+            if (child.type !== 'page' || !child.$ref) return undefined;
+            const file = this.storage.read(child.$ref);
+            return file?.format === 'page' ? file.data.date : undefined;
+          };
+          node.children.sort((a, b) => compareDatesDesc(dateOf(a), dateOf(b)));
+          return node;
+        },
+      },
+    ],
+  },
 });
 
 export const docsLlms = llms(source, {
