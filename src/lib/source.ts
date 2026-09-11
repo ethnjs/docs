@@ -3,11 +3,15 @@ import { lucideIconsPlugin } from 'fumadocs-core/source/lucide-icons';
 import { docsContentRoute, docsImageRoute, docsRoute } from './shared';
 import { defineDocs } from 'fumadocs-mdx/macro';
 import { metaSchema, pageSchema } from 'fumadocs-core/source/schema';
+import { z } from 'zod';
 
 const docs = defineDocs({
   dir: 'content/docs',
   docs: {
-    schema: pageSchema,
+    schema: pageSchema.extend({
+      // ISO 8601 with UTC offset, e.g. 2026-09-15T14:30:00-07:00 — orders changelog entries
+      date: z.iso.datetime({ offset: true }).optional(),
+    }),
     postprocess: {
       includeProcessedMarkdown: true,
     },
