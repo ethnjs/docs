@@ -1,5 +1,6 @@
 {
   "title": "NEXUS",
+  "description": "Science Olympiad tournament management system",
   "root": true,
   "pages": ["...", "changelog"]
 }
