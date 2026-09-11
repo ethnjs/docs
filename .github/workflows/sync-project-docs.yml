@@ -1,0 +1,104 @@
+name: Sync project docs
+
+on:
+  repository_dispatch:
+    types: [project-release]
+  workflow_dispatch:
+    inputs:
+      repo:
+        description: Source repo (owner/name)
+        required: true
+        default: ethnjs/nexus
+      ref:
+        description: Branch, tag, or SHA to sync
+        required: true
+        default: main
+
+permissions:
+  contents: write
+
+# Serialize syncs so two releases can't race on the same push.
+concurrency:
+  group: sync-project-docs
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      # Anyone with a write token on this repo can send a dispatch, so treat the payload as input:
+      # values only reach the shell through env, and are validated before use.
+      - name: Validate input
+        id: input
+        env:
+          EVENT: ${{ github.event_name }}
+          PAYLOAD_REPO: ${{ github.event.client_payload.repo }}
+          PAYLOAD_TAG: ${{ github.event.client_payload.tag }}
+          INPUT_REPO: ${{ inputs.repo }}
+          INPUT_REF: ${{ inputs.ref }}
+        run: |
+          if [ "$EVENT" = repository_dispatch ]; then
+            repo="$PAYLOAD_REPO"
+            ref="$PAYLOAD_TAG"
+            pattern='^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$'
+          else
+            repo="$INPUT_REPO"
+            ref="$INPUT_REF"
+            pattern='^[0-9A-Za-z._/-]+$'
+          fi
+          if ! [[ "$ref" =~ $pattern ]]; then
+            echo "::error::Invalid tag/ref"
+            exit 1
+          fi
+          # Repos allowed to sync into the site.
+          case "$repo" in
+            ethnjs/nexus) ;;
+            *) echo "::error::Repo not allowed"; exit 1 ;;
+          esac
+          {
+            echo "repo=$repo"
+            echo "ref=$ref"
+            echo "name=${repo#*/}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Check out docs site
+        uses: actions/checkout@v7
+
+      - name: Check out ${{ steps.input.outputs.repo }}
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ steps.input.outputs.repo }}
+          ref: ${{ steps.input.outputs.ref }}
+          path: .source
+          persist-credentials: false
+
+      - name: Sync docs
+        env:
+          NAME: ${{ steps.input.outputs.name }}
+        run: bash .github/scripts/sync-project-docs.sh .source/docs "$NAME"
+
+      - name: Commit and push
+        env:
+          NAME: ${{ steps.input.outputs.name }}
+          REF: ${{ steps.input.outputs.ref }}
+          EVENT: ${{ github.event_name }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          git add -A -- "content/docs/$NAME"
+          # public/<name> may not exist yet; only stage it if it's on disk or already tracked.
+          if [ -e "public/$NAME" ] || git ls-files --error-unmatch "public/$NAME" >/dev/null 2>&1; then
+            git add -A -- "public/$NAME"
+          fi
+          if git diff --cached --quiet; then
+            echo "No changes to sync."
+            exit 0
+          fi
+          label="$REF"
+          if [ "$EVENT" != repository_dispatch ]; then
+            label="$REF ($(git -C .source rev-parse --short HEAD))"
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m "docs($NAME): sync $label"
+          git pull --rebase origin "$BRANCH"
+          git push origin "HEAD:$BRANCH"
