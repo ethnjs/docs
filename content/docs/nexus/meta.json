@@ -4,5 +4,5 @@
   "root": true,
   "site": "https://nexus.socalscioly.org",
   "github": "https://github.com/ethnjs/nexus",
-  "pages": ["...", "changelog"]
+  "pages": ["...", "changelog", "[API Reference](/docs/nexus/api)"]
 }
