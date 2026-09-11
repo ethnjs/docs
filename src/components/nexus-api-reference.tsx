@@ -16,6 +16,8 @@ export function NexusApiReference() {
   const configuration = useMemo(
     () => ({
       url: nexusOpenApiUrl,
+      // Scalar's "Ask AI" agent (it otherwise turns itself on automatically when served from localhost).
+      agent: { disabled: true },
       hideDarkModeToggle: true,
       forceDarkModeState: resolvedTheme === 'dark' ? ('dark' as const) : ('light' as const),
     }),
