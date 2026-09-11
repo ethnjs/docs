@@ -17,7 +17,11 @@ const docs = defineDocs({
     },
   },
   meta: {
-    schema: metaSchema,
+    schema: metaSchema.extend({
+      // Project links shown on the landing page (set in a project's root meta.json)
+      site: z.url().optional(),
+      github: z.url().optional(),
+    }),
   },
 });
 
