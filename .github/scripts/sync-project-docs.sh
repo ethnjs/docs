@@ -14,13 +14,14 @@ if [ ! -d "$src" ]; then
 fi
 
 # Pages: mirror deletions, but never copy public/ or .gitkeep, and never touch the files this
-# repo owns (every meta.json, and the changelog landing page). Excluded paths are also protected
-# from --delete, as long as --delete-excluded isn't passed.
+# repo owns (every meta.json, the project overview, and the changelog landing page). Excluded
+# paths are also protected from --delete, as long as --delete-excluded isn't passed.
 mkdir -p "$dest"
 rsync -a --delete \
   --exclude='/public/' \
   --exclude='.gitkeep' \
   --exclude='meta.json' \
+  --exclude='/index.mdx' \
   --exclude='/changelog/index.mdx' \
   "$src/" "$dest/"
 
