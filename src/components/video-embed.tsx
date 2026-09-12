@@ -6,7 +6,7 @@
 // so a synced page's src="/nexus/x.mp4" works once a sync has run.
 export function VideoEmbed({ src, caption }: { src: string; caption?: string }) {
   return (
-    <figure className="my-8 m-0">
+    <figure className="not-prose my-8">
       <div className="rounded-[12px] overflow-hidden border leading-none">
         <video
           src={src}
