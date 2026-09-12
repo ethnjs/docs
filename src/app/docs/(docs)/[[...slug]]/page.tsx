@@ -11,6 +11,7 @@ import { notFound } from 'next/navigation';
 import { getMDXComponents } from '@/components/mdx';
 import type { Metadata } from 'next';
 import { createRelativeLink } from 'fumadocs-ui/mdx';
+import { formatReleaseDate } from '@/lib/release-notes';
 import { getPageGitHubUrl, getPageImageUrl, getPageMarkdownUrl } from '@/lib/shared';
 
 export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
@@ -23,7 +24,15 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
 
   return (
     <DocsPage toc={page.data.toc} full={page.data.full}>
-      <DocsTitle>{page.data.title}</DocsTitle>
+      {/* Any page with a `date` in its frontmatter (release notes, mainly) shows it beside the title. */}
+      <div className="flex flex-row items-baseline justify-between gap-4">
+        <DocsTitle>{page.data.title}</DocsTitle>
+        {page.data.date && (
+          <time dateTime={page.data.date} className="shrink-0 text-sm text-fd-muted-foreground">
+            {formatReleaseDate(page.data.date)}
+          </time>
+        )}
+      </div>
       <DocsDescription className="mb-0">{page.data.description}</DocsDescription>
       <div className="flex flex-row gap-2 items-center border-b pb-6">
         <MarkdownCopyButton markdownUrl={markdownUrl} />
