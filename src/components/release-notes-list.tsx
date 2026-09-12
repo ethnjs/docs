@@ -1,7 +1,7 @@
 import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
 import { createRelativeLink } from 'fumadocs-ui/mdx';
 import type { ComponentProps } from 'react';
-import { compareDatesDesc, formatChangelogDate } from '@/lib/changelog';
+import { compareDatesDesc, formatReleaseDate } from '@/lib/release-notes';
 import { source } from '@/lib/source';
 import { getMDXComponents } from './mdx';
 
@@ -15,12 +15,12 @@ const plainHeadings = {
   h6: (props: ComponentProps<'h6'>) => <h6 {...props} id={undefined} />,
 };
 
-// Latest releases from content/docs/<project>/changelog/, newest first by `date`. Each release is an
+// Latest releases from content/docs/<project>/release-notes/, newest first by `date`. Each release is an
 // accordion holding its full page; the newest starts open and only one is open at a time.
-export function ChangelogList({ project, limit = 15 }: { project: string; limit?: number }) {
+export function ReleaseNotesList({ project, limit = 15 }: { project: string; limit?: number }) {
   const entries = source
     .getPages()
-    .filter((page) => page.slugs.length === 3 && page.slugs[0] === project && page.slugs[1] === 'changelog')
+    .filter((page) => page.slugs.length === 3 && page.slugs[0] === project && page.slugs[1] === 'release-notes')
     .sort((a, b) => compareDatesDesc(a.data.date, b.data.date))
     .slice(0, limit);
 
@@ -39,7 +39,7 @@ export function ChangelogList({ project, limit = 15 }: { project: string; limit?
                 <span>{entry.data.title}</span>
                 {entry.data.date && (
                   <time dateTime={entry.data.date} className="text-sm font-normal text-fd-muted-foreground">
-                    {formatChangelogDate(entry.data.date)}
+                    {formatReleaseDate(entry.data.date)}
                   </time>
                 )}
               </span>

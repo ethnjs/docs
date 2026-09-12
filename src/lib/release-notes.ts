@@ -1,4 +1,4 @@
-// Changelog entries are ordered by their `date` frontmatter (ISO 8601 with offset), newest first.
+// Release notes are ordered by their `date` frontmatter (ISO 8601 with offset), newest first.
 // Entries without a usable date sort last; ties keep their existing order.
 
 function toTime(date: string | undefined): number {
@@ -14,7 +14,7 @@ export function compareDatesDesc(a: string | undefined, b: string | undefined): 
 }
 
 /** Calendar date as written in the frontmatter (the release's own local day), e.g. "September 15, 2026". */
-export function formatChangelogDate(date: string): string {
+export function formatReleaseDate(date: string): string {
   return new Date(`${date.slice(0, 10)}T00:00:00Z`).toLocaleDateString('en-US', {
     dateStyle: 'long',
     timeZone: 'UTC',

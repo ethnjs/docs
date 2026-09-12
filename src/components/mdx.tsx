@@ -1,13 +1,13 @@
 import defaultMdxComponents from 'fumadocs-ui/mdx';
 import type { MDXComponents } from 'mdx/types';
-import { ChangelogList } from './changelog-list';
 import { ProjectList } from './project-list';
+import { ReleaseNotesList } from './release-notes-list';
 
 export function getMDXComponents(components?: MDXComponents) {
   return {
     ...defaultMdxComponents,
-    ChangelogList,
     ProjectList,
+    ReleaseNotesList,
     ...components,
   } satisfies MDXComponents;
 }

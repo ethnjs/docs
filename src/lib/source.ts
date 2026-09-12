@@ -4,13 +4,13 @@ import { docsContentRoute, docsImageRoute, docsRoute } from './shared';
 import { defineDocs } from 'fumadocs-mdx/macro';
 import { metaSchema, pageSchema } from 'fumadocs-core/source/schema';
 import { z } from 'zod';
-import { compareDatesDesc } from './changelog';
+import { compareDatesDesc } from './release-notes';
 
 const docs = defineDocs({
   dir: 'content/docs',
   docs: {
     schema: pageSchema.extend({
-      // ISO 8601 with UTC offset, e.g. 2026-09-15T14:30:00-07:00 — orders changelog entries
+      // ISO 8601 with UTC offset, e.g. 2026-09-15T14:30:00-07:00 — orders release notes
       date: z.iso.datetime({ offset: true }).optional(),
     }),
     postprocess: {
@@ -34,9 +34,9 @@ export const source = loader({
   pageTree: {
     transformers: [
       {
-        // Order every project's changelog/ by `date`, newest first — a static meta.json would need editing each release.
+        // Order every project's release-notes/ by `date`, newest first — a static meta.json would need editing each release.
         folder(node, folderPath) {
-          if (!/(^|\/)changelog$/.test(folderPath)) return node;
+          if (!/(^|\/)release-notes$/.test(folderPath)) return node;
           const dateOf = (child: (typeof node.children)[number]) => {
             if (child.type !== 'page' || !child.$ref) return undefined;
             const file = this.storage.read(child.$ref);

@@ -12,9 +12,9 @@ browser — so they always match what the API is actually serving. NEXUS's is at
 **Pages under `content/docs/<project>/` are synced copies. Don't edit them here — the next release overwrites them.**
 Edit the page in the project's repo instead.
 
-| Project | Edit its docs in                                                             | Published at  |
-| ------- | ---------------------------------------------------------------------------- | ------------- |
-| NEXUS   | [`ethnjs/nexus`](https://github.com/ethnjs/nexus) → `docs/`                   | `/docs/nexus` |
+| Project | Edit its docs in                                           | Published at  |
+| ------- | ---------------------------------------------------------- | ------------- |
+| NEXUS   | [`ethnjs/nexus`](https://github.com/ethnjs/nexus) → `docs/` | `/docs/nexus` |
 
 Every docs page has a **View on GitHub** link that opens its real source file, so following that link always
 lands in the right repo.
@@ -22,25 +22,35 @@ lands in the right repo.
 In a project's `docs/` folder:
 
 - `*.mdx` — pages. Images sit next to the page and are linked relatively (`![Setup](./setup.png)`).
-- `changelog/<tag>.mdx` — one page per release, named after the tag (`v1.0.0-beta.mdx`), with `title` and a
-  `date` in its frontmatter (ISO 8601 with an offset, e.g. `2026-09-15T14:30:00-07:00`). The date orders the
-  changelog, newest first.
+- `release-notes/<tag>.mdx` — one page per release, named after the tag (`v1.0.0-beta.mdx`), with `title` (the
+  tag), `description` (a one-line summary), and `date` (ISO 8601 with a UTC offset, e.g.
+  `2026-09-15T14:30:00-07:00`) in its frontmatter. The date orders them, newest first.
 - `public/` — videos and other static files, served from the site root as `/<project>/<file>`.
+
+### Release notes, not the changelog
+
+Release notes are user-facing: written by hand, one page per release, aimed at the people who use the project —
+for NEXUS, tournament directors and volunteers — with screenshots and videos. Those are what sync here.
+
+The changelog is developer-facing: release-please's auto-generated commit list, which lives on the project's
+GitHub release page. It is never synced here.
 
 ### What this repo owns
 
 These are edited here, and the sync never touches them:
 
 - `content/docs/index.mdx` — the landing page listing all projects.
-- `content/docs/<project>/meta.json` — the section's title, sidebar order, and its live-site and GitHub links.
+- `content/docs/<project>/meta.json` — the section's title, sidebar order, and its live-site and GitHub links
+  (and any `meta.json` deeper in the section).
 - `content/docs/<project>/index.mdx` — the project overview.
-- `content/docs/<project>/changelog/index.mdx` — the changelog landing page.
+- `content/docs/<project>/release-notes/index.mdx` — the release notes landing page.
 - Everything under `src/` — the site itself.
 
 ### How the sync works
 
 1. A release is published in the project's repo (release-please tags it, e.g. `v1.0.0-beta`).
-2. That repo sends a `repository_dispatch` event of type `project-release` to this one.
+2. That repo sends a `repository_dispatch` event of type `project-release` to this one, with a
+   `{ repo, tag, version }` payload.
 3. [`.github/workflows/sync-project-docs.yml`](.github/workflows/sync-project-docs.yml) copies the project's
    `docs/` into `content/docs/<project>/` and its `docs/public/` into `public/<project>/`, mirroring deletions
    but keeping the files listed above.
@@ -74,7 +84,7 @@ pushes there.
 1. Create `content/docs/<project>/meta.json` with `"root": true`, a `title`, and optional `description`, `site`,
    and `github` fields. It becomes a sidebar tab and a card on the landing page automatically.
 2. Add `content/docs/<project>/index.mdx` (overview) and, if it has releases,
-   `content/docs/<project>/changelog/index.mdx` rendering `<ChangelogList project="<project>" />`.
+   `content/docs/<project>/release-notes/index.mdx` rendering `<ReleaseNotesList project="<project>" />`.
 3. Allow the project's repo in `.github/workflows/sync-project-docs.yml` and add it to `syncedProjects` in
    [`src/lib/shared.ts`](src/lib/shared.ts) so its pages link back to the right repo.
 4. Have that repo send a `project-release` `repository_dispatch` to `ethnjs/docs` when it releases.
@@ -87,10 +97,10 @@ pushes there.
 │   ├── scripts/          # the sync script
 │   └── workflows/        # docs sync, on a project-release dispatch or by hand
 ├── content/docs/         # MDX content — one folder per project, plus the landing page
-│   └── nexus/            # NEXUS section: overview, meta.json, changelog/
+│   └── nexus/            # NEXUS section: overview, meta.json, release-notes/
 ├── public/               # videos and other static files synced from projects, as /<project>/…
 └── src/
     ├── app/              # routes: docs pages, NEXUS API reference (Scalar), search, llms.txt, OG images
-    ├── components/       # project list, changelog accordions, Scalar embed, providers
-    └── lib/              # content source, frontmatter schemas, changelog ordering, GitHub links
+    ├── components/       # project list, release notes accordions, Scalar embed, providers
+    └── lib/              # content source, frontmatter schemas, release notes ordering, GitHub links
 ```

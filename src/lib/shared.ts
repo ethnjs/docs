@@ -19,7 +19,7 @@ const syncedProjects: Record<string, { repo: string; branch: string; docsPath: s
 
 // Files inside a project folder that this repo owns and the sync never overwrites — keep in step with
 // the excludes in .github/scripts/sync-project-docs.sh.
-const ownedProjectFiles = new Set(['index.mdx', 'changelog/index.mdx']);
+const ownedProjectFiles = new Set(['index.mdx', 'release-notes/index.mdx']);
 
 /** GitHub URL of a page's real source file. `pagePath` is relative to `content/docs`. */
 export function getPageGitHubUrl(pagePath: string): string {

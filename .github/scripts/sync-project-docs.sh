@@ -14,7 +14,7 @@ if [ ! -d "$src" ]; then
 fi
 
 # Pages: mirror deletions, but never copy public/ or .gitkeep, and never touch the files this
-# repo owns (every meta.json, the project overview, and the changelog landing page). Excluded
+# repo owns (every meta.json, the project overview, and the release notes landing page). Excluded
 # paths are also protected from --delete, as long as --delete-excluded isn't passed.
 mkdir -p "$dest"
 rsync -a --delete \
@@ -22,7 +22,7 @@ rsync -a --delete \
   --exclude='.gitkeep' \
   --exclude='meta.json' \
   --exclude='/index.mdx' \
-  --exclude='/changelog/index.mdx' \
+  --exclude='/release-notes/index.mdx' \
   "$src/" "$dest/"
 
 # Videos: served from the site root as /<name>/<file>. The whole folder belongs to the source.
