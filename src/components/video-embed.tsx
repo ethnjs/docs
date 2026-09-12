@@ -15,11 +15,11 @@ export function VideoEmbed({ src, caption }: { src: string; caption?: string }) 
           loop
           playsInline
           onContextMenu={(e) => e.preventDefault()}
-          className="w-full h-full object-cover"
+          className="block w-full h-auto"
         />
       </div>
       {caption && (
-        <figcaption className="mt-2 text-center font-mono text-xs text-fd-muted-foreground">{caption}</figcaption>
+        <figcaption className="mt-2 text-center text-xs text-fd-muted-foreground">{caption}</figcaption>
       )}
     </figure>
   );
