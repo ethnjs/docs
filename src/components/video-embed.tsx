@@ -7,7 +7,7 @@
 export function VideoEmbed({ src, caption }: { src: string; caption?: string }) {
   return (
     <figure className="my-8 m-0">
-      <div className="rounded-[12px] overflow-hidden border">
+      <div className="rounded-[12px] overflow-hidden border leading-none">
         <video
           src={src}
           autoPlay

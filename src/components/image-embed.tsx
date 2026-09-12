@@ -6,8 +6,9 @@ import { ImageZoom } from 'fumadocs-ui/components/image-zoom';
 export function ImageEmbed({ src, alt, caption }: { src: string; alt?: string; caption?: string }) {
   return (
     <figure className="my-8 m-0">
-      {/* ImageZoom wraps its child in an inline <span data-rmiz>, so make that wrapper block-level. */}
-      <div className="rounded-[12px] overflow-hidden border [&>[data-rmiz]]:block">
+      {/* ImageZoom nests the image in a [data-rmiz-content] span that stays inline, so its line box adds
+          a strip of background above and below the image — blockify it and drop the inherited leading. */}
+      <div className="rounded-[12px] overflow-hidden border leading-none [&_[data-rmiz-content]]:block">
         {/* A runtime path carries no width/height, which next/image requires — so render a plain <img>
             as ImageZoom's child (it zooms whatever it is given) rather than letting it use next/image. */}
         <ImageZoom src={src}>
